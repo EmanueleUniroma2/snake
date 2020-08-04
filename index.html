@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+		<!-- title -->
+		<title>Snake</title>
+
+		<!-- charset -->
+		<meta charset="UTF-8">
+
+		<!-- icon for IOS shortcut -->
+		<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+		<!-- disable zoom on mobile devices -->
+		<link rel="icon" href="./favicon.png" type="png">
+
+
+		<!-- disable zoom on mobile devices -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+    <script type="text/javascript">
+
+			var snake = [];
+
+			var DOWN = [0,1];
+			var UP = [0,-1];
+			var LEFT = [-1,0];
+			var RIGHT = [1,0];
+
+			var LOCK_MOVE = false;
+
+			var foods = [];
+			var points = 0;
+
+			var W = 20;
+			var H = 30;
+
+			var direction = DOWN;
+			var level = 1;
+			var gameover = false;
+
+			function getSpeed(){
+				let speed = 400 - 30*level;
+				if(speed < 50){
+					speed = 50;
+				}
+				return speed;
+			}
+
+			function getCell(n,m){
+				let c = document.createElement("div");
+				c.className = "cell";
+				c.id = n.toString() + "-" + m.toString();
+				return c;
+			}
+
+			function buildGrid(){
+
+				let gr = document.getElementById("main_grid");
+				while(gr.firstChild){
+					gr.removeChild(gr.firstChild);
+				}
+
+				for(let i = 0; i < W; i++){
+						gr.appendChild(document.createElement("br"));
+						for(let j = 0; j < H; j++){
+							gr.appendChild(getCell(i,j));
+						}
+				}
+			}
+
+			function newGame(){
+				initGrid();
+				gameover = true;
+				setTimeout( function(){
+					gameover = false;
+					frame();
+				},450);
+			}
+
+			function initGrid(){
+
+				buildGrid();
+
+				initSnake(3);
+
+				foods = [];
+
+				direction = DOWN;
+
+				setPoints(0);
+			}
+
+			function addSnakeCell(x_, y_){
+				let cell = {
+					x: x_,
+					y: y_,
+				}
+				snake.push(cell);
+			}
+
+			function initSnake(size, pageWidth){
+				snake = [];
+
+				for(let i = 0; i < size; i++){
+					addSnakeCell(W/2, i);
+				}
+			}
+
+			function frame(){
+				if(!gameover){
+					step();
+					setTimeout(frame, getSpeed());
+				}
+			}
+
+			function setFood(){
+				while(foods.length < level){
+
+					let f = {
+						x: randomNumber(0,W-1),
+						y: randomNumber(0,H-1)
+					};
+
+					foods.push(f);
+				}
+			}
+
+			function randomNumber(min, max) {
+			    min = Math.ceil(min);
+			    max = Math.floor(max);
+			    return Math.floor(Math.random() * (max - min + 1)) + min;
+			}
+
+			function step(){
+
+				LOCK_MOVE = false;
+
+				setFood();
+
+				move();
+				let over = draw();
+
+				if(over){
+					alert("GAME OVER!");
+					gameover = true;
+					clearMap();
+				}
+			}
+
+
+			function clearMap(){
+				let cl = document.getElementsByClassName("cell");
+				for(let i = 0; i < cl.length;i++){
+					cl[i].style.backgroundColor = "";
+				}
+
+			}
+
+			function killFood(pos){
+				for(let i = 0; i < foods; i++){
+					let f = foods[i];
+					if(f.x == pos.x && pos.y == f.y){
+						foods.splice(i, 1);
+						return;
+					}
+				}
+			}
+
+			function setPoints(n){
+
+				let p = document.getElementById("points_counter");
+				let l = document.getElementById("level_counter");
+
+				points = n;
+				level = Math.floor(n/7) + 1;
+
+				p.innerHTML = "Points: " + n.toString();
+				l.innerHTML = "Level: " + level.toString();
+			}
+
+			function draw(){
+
+				clearMap();
+
+				for(let i = 0; i < snake.length;i++){
+					let c = snake[i];
+
+					if(c.x < 0){c.x = W-1;}
+					if(c.x >= W){c.x = 0;}
+
+					if(c.y < 0){c.y = H-1;}
+					if(c.y >= H){c.y = 0;}
+
+					let c_ = document.getElementById( (c.x).toString() + "-" + (c.y).toString());
+
+					if(c_.style.backgroundColor == "red"){
+						return true;
+					}
+
+					c_.style.backgroundColor = "red";
+				}
+
+				let ate_index = -1;
+
+				for(let i = 0; i < foods.length;i++){
+					let f = foods[i];
+					let f_ = document.getElementById( (f.x).toString() + "-" + (f.y).toString());
+
+					if(f_.style.backgroundColor == "red"){
+						ate_index = i;
+						points++;
+						setPoints(points);
+					}else{
+						f_.style.backgroundColor = "yellow";
+					}
+				}
+
+				if(ate_index != -1){
+					foods.splice(ate_index,1);
+					snake.unshift({x: snake[0].x, y: snake[1].y});
+				}
+				return false;
+			}
+
+			function move(){
+
+				for(let i = 0; i < snake.length-1;i++){
+					snake[i].x = snake[i+1].x;
+					snake[i].y = snake[i+1].y;
+				}
+
+				let head = snake[snake.length-1];
+
+				head.x += direction[0];
+				head.y += direction[1];
+
+			}
+
+			function getKey(){
+				let code = event.keyCode;
+
+				if(LOCK_MOVE){
+					return;
+				}
+				LOCK_MOVE = true;
+
+				if(code == 37 && direction != DOWN){
+					direction = UP;
+				}
+				if(code == 39 && direction != UP){
+					direction = DOWN;
+				}
+				if(code == 38 && direction != RIGHT){
+					direction = LEFT;
+				}
+				if(code == 40 && direction != LEFT){
+					direction = RIGHT;
+				}
+			}
+
+    </script>
+
+		<style type="text/css">
+					body{
+						margin: 0;
+						background-color: black;
+					}
+					.title{
+						font-size: 2rem;
+				    color: #852828;
+				    margin: 1rem;
+					}
+					.grid_wrap{
+						margin: 1rem;
+					}
+					.grid{
+
+					}
+					.cell{
+						display: inline-flex;
+				    width: 1rem;
+				    height: 1rem;
+				    background-color: #1e1e1e;
+				    border: 1px solid black;
+					}
+					.play_btn{
+						color: #f6afaf;
+				    background-color: #a82727;
+				    width: 9rem;
+				    text-align: center;
+				    border-radius: 1rem;
+				    padding: 0.2rem;
+				    margin: 1rem;
+				    font-family: monospace;
+						cursor: pointer;
+					}
+					.points{
+						display: inline-block;
+						color: white;
+						margin: 1rem 2rem;
+					}
+					.level{
+						display: inline-block;
+						color: white;
+						margin: 1rem 2rem;
+					}
+		</style>
+	</head>
+
+	<body onload="buildGrid();" onkeyup="getKey();">
+
+			<div class="title">Snake</div>
+
+			<div class="play_btn" onclick="newGame();" id="new_game_btn">NEW GAME</div>
+
+			<div class="grid_wrap">
+				<div class="grid" id="main_grid"></div>
+			</div>
+
+			<div class="points" id="points_counter"></div>
+			<div class="level" id="level_counter"></div>
+
+			<div class="version">Version 1.0</div>
+	</body>
+</html>
