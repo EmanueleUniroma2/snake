@@ -56,6 +56,11 @@
 
 			function buildGrid(){
 
+				// Listen for resize changes
+		    window.addEventListener("resize", function() {
+		        resizeLayout();
+		    }, false);
+
 				let gr = document.getElementById("main_grid");
 				while(gr.firstChild){
 					gr.removeChild(gr.firstChild);
@@ -67,6 +72,14 @@
 							gr.appendChild(getCell(i,j));
 						}
 				}
+
+				resizeLayout();
+
+				addMobileCommands();
+			}
+
+			function addMobileCommands(){
+
 			}
 
 			function newGame(){
@@ -240,24 +253,76 @@
 			function getKey(){
 				let code = event.keyCode;
 
+				if(code == 37){
+					moveDirection(1);
+				}
+				if(code == 39){
+					moveDirection(2);
+				}
+				if(code == 38){
+					moveDirection(3);
+				}
+				if(code == 40){
+					moveDirection(4);
+				}
+			}
+
+			function moveClick(dir){
+				moveDirection(+dir);
+			}
+
+			function moveDirection(code){
 				if(LOCK_MOVE){
 					return;
 				}
 				LOCK_MOVE = true;
 
-				if(code == 37 && direction != DOWN){
+				if(code == 1 && direction != DOWN){
 					direction = UP;
 				}
-				if(code == 39 && direction != UP){
+				if(code == 2 && direction != UP){
 					direction = DOWN;
 				}
-				if(code == 38 && direction != RIGHT){
+				if(code == 3 && direction != RIGHT){
 					direction = LEFT;
 				}
-				if(code == 40 && direction != LEFT){
+				if(code == 4 && direction != LEFT){
 					direction = RIGHT;
 				}
 			}
+
+
+			function resizeLayout(){
+				let g = document.getElementById("main_grid");
+
+
+				if(window.innerWidth < 400){
+					g.style.fontSize = "0.55rem";
+					return;
+				}
+
+				if(window.innerWidth < 500){
+					g.style.fontSize = "0.6rem";
+					return;
+				}
+
+				if(window.innerWidth < 600){
+					g.style.fontSize = "0.7rem";
+					return;
+				}
+
+				if(window.innerWidth < 700){
+					g.style.fontSize = "0.8rem";
+					return;
+				}
+
+				if(window.innerWidth < 800){
+					g.style.fontSize = "0.9rem";
+					return;
+				}
+
+				g.style.fontSize = "";
+		}
 
     </script>
 
@@ -273,14 +338,15 @@
 					}
 					.grid_wrap{
 						margin: 1rem;
+						display: inline-block;
 					}
 					.grid{
-
+						width: 35rem;
 					}
 					.cell{
 						display: inline-flex;
-				    width: 1rem;
-				    height: 1rem;
+				    width: 1em;
+				    height: 1em;
 				    background-color: #1e1e1e;
 				    border: 1px solid black;
 					}
@@ -305,6 +371,44 @@
 						color: white;
 						margin: 1rem 2rem;
 					}
+
+					.mobile-commands{
+						margin-left: 4rem;
+						display: inline-block;
+						width: 15rem;
+					}
+
+					.mobile_command{
+						width: 3rem;
+				    height: 1rem;
+				    border: 1px solid red;
+				    color: white;
+				    padding: 0.7rem 0.2rem;
+				    text-align: center;
+						position: relative;
+						margin: 0.5rem;
+					}
+					.up{
+    				left: 4rem;
+					}
+					.left{
+
+					}
+					.right{
+						left: 8rem;
+				    top: -3rem;
+					}
+					.down{
+						left: 4rem;
+						top: -3rem;
+					}
+					.info{
+						font-size: 0.8rem;
+						color: #ffffff;
+						margin-bottom: -1rem;
+						margin-left: 2rem;
+						width: 20rem;
+					}
 		</style>
 	</head>
 
@@ -313,14 +417,21 @@
 			<div class="title">Snake</div>
 
 			<div class="play_btn" onclick="newGame();" id="new_game_btn">NEW GAME</div>
+			<div class="info">To move the snake, you can use your keyboard arrows, or the buttons on touch devices.</div>
 
 			<div class="grid_wrap">
 				<div class="grid" id="main_grid"></div>
+				<div class="points" id="points_counter"></div>
+				<div class="level" id="level_counter"></div>
 			</div>
 
-			<div class="points" id="points_counter"></div>
-			<div class="level" id="level_counter"></div>
+			<div class="mobile-commands" id="mobile-commands">
+				<div class="up mobile_command" onclick="moveClick('3');">▲</div>
+				<div class="left mobile_command" onclick="moveClick('1');">◄</div>
+				<div class="right mobile_command" onclick="moveClick('2');">►</div>
+				<div class="down mobile_command" onclick="moveClick('4');">▼</div>
+			</div>
 
-			<div class="version">Version 1.0</div>
+			<div class="version">Version 1.1</div>
 	</body>
 </html>
