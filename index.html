@@ -22,10 +22,16 @@
 
 			var snake = [];
 
+			var STOPPED = false;
+
 			var DOWN = [0,1];
 			var UP = [0,-1];
 			var LEFT = [-1,0];
 			var RIGHT = [1,0];
+
+			var SNAKE_COLOR = "rgb(254, 71, 71)";
+			var SNAKE_HEAD = "red";
+			var SNAKE_FOOD = "yellow";
 
 			var LOCK_MOVE = false;
 
@@ -40,7 +46,7 @@
 			var gameover = false;
 
 			function getSpeed(){
-				let speed = 400 - 30*level;
+				let speed = 400 - 15*level;
 				if(speed < 50){
 					speed = 50;
 				}
@@ -74,12 +80,6 @@
 				}
 
 				resizeLayout();
-
-				addMobileCommands();
-			}
-
-			function addMobileCommands(){
-
 			}
 
 			function newGame(){
@@ -89,6 +89,14 @@
 					gameover = false;
 					frame();
 				},450);
+			}
+
+			function stop(){
+				STOPPED = true;
+			}
+			function go(){
+				STOPPED = false;
+				frame();
 			}
 
 			function initGrid(){
@@ -121,6 +129,11 @@
 			}
 
 			function frame(){
+
+				if(STOPPED){
+					return;
+				}
+
 				if(!gameover){
 					step();
 					setTimeout(frame, getSpeed());
@@ -207,11 +220,15 @@
 
 					let c_ = document.getElementById( (c.x).toString() + "-" + (c.y).toString());
 
-					if(c_.style.backgroundColor == "red"){
+					if(c_.style.backgroundColor == SNAKE_COLOR){
 						return true;
 					}
 
-					c_.style.backgroundColor = "red";
+					if(i == snake.length-1){
+						c_.style.backgroundColor = SNAKE_HEAD;
+					}else{
+						c_.style.backgroundColor = SNAKE_COLOR;
+					}
 				}
 
 				let ate_index = -1;
@@ -220,12 +237,14 @@
 					let f = foods[i];
 					let f_ = document.getElementById( (f.x).toString() + "-" + (f.y).toString());
 
-					if(f_.style.backgroundColor == "red"){
+					if(f_.style.backgroundColor == SNAKE_HEAD){
 						ate_index = i;
 						points++;
 						setPoints(points);
 					}else{
-						f_.style.backgroundColor = "yellow";
+						if(f_.style.backgroundColor != SNAKE_COLOR){
+							f_.style.backgroundColor = SNAKE_FOOD;
+						}
 					}
 				}
 
@@ -330,6 +349,7 @@
 					body{
 						margin: 0;
 						background-color: black;
+						overflow-x: hidden;
 					}
 					.title{
 						font-size: 2rem;
@@ -412,7 +432,7 @@
 		</style>
 	</head>
 
-	<body onload="buildGrid();" onkeyup="getKey();">
+	<body onload="buildGrid();" onkeydown="getKey();">
 
 			<div class="title">Snake</div>
 
