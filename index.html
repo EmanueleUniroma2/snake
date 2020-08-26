@@ -38,7 +38,7 @@
 			var foods = [];
 			var points = 0;
 
-			var W = 20;
+			var W = 10;
 			var H = 30;
 
 			var direction = DOWN;
@@ -80,6 +80,12 @@
 				}
 
 				resizeLayout();
+			}
+
+			function setGrid(el){
+				W = +el.value;
+				initGrid();
+				gameover = true;
 			}
 
 			function newGame(){
@@ -429,6 +435,13 @@
 						margin-left: 2rem;
 						width: 20rem;
 					}
+
+					.map_select{
+						position: relative;
+						top: -2.1rem;
+						left: 15rem;
+						opacity: 0.7;
+					}
 		</style>
 	</head>
 
@@ -437,6 +450,12 @@
 			<div class="title">Snake</div>
 
 			<div class="play_btn" onclick="newGame();" id="new_game_btn">NEW GAME</div>
+			<select onchange="setGrid(this);" class="map_select">
+				<option value= "6">Small Map</option>
+				<option value= "10" selected>Medium Map</option>
+				<option value= "20">Big Map</option>
+			</select>
+
 			<div class="info">To move the snake, you can use your keyboard arrows, or the buttons on touch devices.</div>
 
 			<div class="grid_wrap">
